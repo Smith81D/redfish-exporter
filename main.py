@@ -6,6 +6,8 @@ import logging
 import os
 import warnings
 import sys
+import socks
+import socket
 
 from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 from socketserver import ThreadingMixIn
@@ -104,6 +106,12 @@ def get_args():
         action="store_true",
         required=False
     )
+    parser.add_argument(
+        "-s", "--socks5-proxy-port",
+        dest="socks5_proxy_port",
+        type=int,
+        help="Route Redfish requests through a local SOCKS5 proxy (listening on 127.0.0.1:<port>)"
+    )
 
     return parser.parse_args()
 
@@ -115,6 +123,16 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
 
     enable_logging(call_args.logging, call_args.debug)
+
+    # Configure global SOCKS5 proxy for outbound connections (Redfish)
+    if call_args.socks5_proxy_port is not None:
+        proxy_port = call_args.socks5_proxy_port
+        socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", proxy_port)
+        socket.socket = socks.socksocket
+        logging.info(
+            "SOCKS5 proxy enabled: routing outbound Redfish traffic via 127.0.0.1:%s",
+            proxy_port
+        )
 
     # get the config
 
