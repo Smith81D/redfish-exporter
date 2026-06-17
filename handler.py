@@ -36,6 +36,7 @@ class WelcomePage:
             <li><strong>Firmware Metrics:</strong> Use <code>/firmware</code> to retrieve firmware version information for the server components.</li>
             <li><strong>Performance Metrics:</strong> Use <code>/performance</code> to retrieve performance-related metrics like power consumption and temperature data.</li>
             <li><strong>Sensors Metrics:</strong> Use <code>/sensors</code> to retrieve raw sensor readings (energy, voltage, current, temperature, ...).</li>
+            <li><strong>Power Metrics:</strong> Use <code>/power</code> to retrieve power readings.</li>
             <li><strong>BIOS Metrics:</strong> Use <code>/bios</code> to retrieve BIOS settings and pending-change state.</li>
         </ul>
         """

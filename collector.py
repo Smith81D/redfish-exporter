@@ -13,6 +13,8 @@ from collectors.firmware_collector import FirmwareCollector
 from collectors.health_collector import HealthCollector
 from collectors.certificate_collector import CertificateCollector
 from collectors.sensors_collector import SensorsCollector
+from collectors.power_collector import PowerCollector
+
 
 class RedfishMetricsCollector:
     """Class for collecting Redfish metrics."""
@@ -527,6 +529,17 @@ class RedfishMetricsCollector:
         if self.metrics_type == 'sensors':
             metrics = SensorsCollector(self)
             yield from metrics.collect()
+
+        # Get the power supply information
+        if self.metrics_type == 'power':
+            metrics = PowerCollector(self)
+            metrics.collect()
+            yield metrics.psu_health_metrics
+            yield metrics.psu_output_voltage_metrics
+            yield metrics.psu_output_amperage_metrics
+            yield metrics.psu_input_amperage_metrics
+            yield metrics.psu_power_output_watts_metrics
+            yield metrics.psu_power_input_watts_metrics
 
         # Finish with calculating the scrape duration
         duration = round(time.time() - self._start_time, 2)
