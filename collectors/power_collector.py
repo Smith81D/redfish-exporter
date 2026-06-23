@@ -154,12 +154,12 @@ class PowerCollector:
 
     def extract_output_voltage(self, data, device_type, device_name):
         """Extract output voltage from data."""
-        huawei = self.get_huawei_oem(data, device_type, device_name)
+        vendor = self.get_vendor_oem(data, device_type, device_name)
     
-        if huawei is None:
+        if vendor is None:
             return math.nan
     
-        voltage = huawei.get("OutputVoltage")
+        voltage = vendor.get("OutputVoltage")
         if voltage is None:
             logging.warning(
                 "Target %s: No %s output voltage data provided for %s!",
@@ -173,12 +173,12 @@ class PowerCollector:
     
     def extract_output_amperage(self, data, device_type, device_name):
         """Extract output amperage from data."""
-        huawei = self.get_huawei_oem(data, device_type, device_name)
+        vendor = self.get_vendor_oem(data, device_type, device_name)
     
-        if huawei is None:
+        if vendor is None:
             return math.nan
     
-        amperage = huawei.get("OutputAmperage")
+        amperage = vendor.get("OutputAmperage")
         if amperage is None:
             logging.warning(
                 "Target %s: No %s output amperage data provided for %s!",
@@ -192,12 +192,12 @@ class PowerCollector:
 
     def extract_input_amperage(self, data, device_type, device_name):
         """Extract output amperage from data."""
-        huawei = self.get_huawei_oem(data, device_type, device_name)
+        vendor = self.get_vendor_oem(data, device_type, device_name)
     
-        if huawei is None:
+        if vendor is None:
             return math.nan
     
-        amperage = huawei.get("InputAmperage")
+        amperage = vendor.get("InputAmperage")
         if amperage is None:
             logging.warning(
                 "Target %s: No %s input amperage data provided for %s!",
@@ -211,12 +211,12 @@ class PowerCollector:
 
     def extract_power_output_watts(self, data, device_type, device_name):
         """Extract output watts from data."""
-        huawei = self.get_huawei_oem(data, device_type, device_name)
+        vendor = self.get_vendor_oem(data, device_type, device_name)
     
-        if huawei is None:
+        if vendor is None:
             return math.nan
     
-        watts = huawei.get("PowerOutputWatts")
+        watts = vendor.get("PowerOutputWatts")
         if watts is None:
             logging.warning(
                 "Target %s: No %s power output watts data provided for %s!",
@@ -230,12 +230,12 @@ class PowerCollector:
 
     def extract_power_input_watts(self, data, device_type, device_name):
         """Extract output watts from data."""
-        huawei = self.get_huawei_oem(data, device_type, device_name)
+        vendor = self.get_vendor_oem(data, device_type, device_name)
     
-        if huawei is None:
+        if vendor is None:
             return math.nan
     
-        watts = huawei.get("PowerInputWatts")
+        watts = vendor.get("PowerInputWatts")
         if watts is None:
             logging.warning(
                 "Target %s: No %s power input watts data provided for %s!",
@@ -280,13 +280,16 @@ class PowerCollector:
                 metric_family = getattr(self, f"mem_metrics_{metric_name.split('_')[-1]}")
             metric_family.add_sample(metric_name, value=value, labels=labels)
 
-    def get_huawei_oem(self, data, device_type, device_name):
-        """Get the Oem->Huawei dictionary."""
-        huawei = data.get("Oem", {}).get("Huawei")
+    def get_vendor_oem(self, data, device_type, device_name):
+        """Get the vendor (Oem->Huawei or Oem->xFusion) dictionary."""
+        vendor = data.get("Oem", {}).get("Huawei")
+
+        if vendor is None:
+            vendor = data.get("Oem", {}).get("xFusion")
     
-        if huawei is None:
+        if vendor is None:
             logging.debug(
-                "Target %s: Host %s, Model %s, %s %s: Oem->Huawei entry not found.",
+                "Target %s: Host %s, Model %s, %s %s: Oem->[Vendor] entry not found.",
                 self.col.target,
                 self.col.host,
                 self.col.model,
@@ -294,4 +297,4 @@ class PowerCollector:
                 device_name
             )
     
-        return huawei
+        return vendor
